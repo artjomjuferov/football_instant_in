@@ -12,7 +12,8 @@ class CookieService
     file = File.open(COOKIES_FILE)
     json = JSON.load(file)
     if json
-      @browser.cookies.set(json.transform_keys(&:to_sym))
+      byebug
+      set_cookies(json)
       @load_cookies = true
     else
       @load_cookies = false
@@ -27,17 +28,29 @@ class CookieService
   end
 
   def save_cookie
-    ferrum_cookie = @browser.cookies.all.first&.[](1)
-    return unless ferrum_cookie
+    ferrum_cookies = @browser.cookies.all
+    return if ferrum_cookies.empty?
 
     File.open(COOKIES_FILE,"w") do |f|
-      f.write(json_for_save(ferrum_cookie).to_json)
+      f.write(cookies_hash_to_save(ferrum_cookies).to_json)
     end
   end
 
   private
 
-  def json_for_save(ferrum_cookie)
+  def set_cookies(cookies_from_file)
+    cookies_from_file.each do |_name, cookie|
+      @browser.cookies.set(cookie.transform_keys(&:to_sym))
+    end
+  end
+
+  def cookies_hash_to_save(ferrum_cookies)
+    ferrum_cookies.each_with_object({}) do |(name, ferum_cookie), res|
+      res[name] = parse_cookie(ferum_cookie)
+    end
+  end
+
+  def parse_cookie(ferrum_cookie)
     ATTRIBUTES.each_with_object({}) do |attr, res|
       res[attr] = ferrum_cookie.public_send(attr)
       res[attr] = res[attr].to_f if attr == :expires

@@ -11,7 +11,7 @@ class PostAnalizer
   private
 
   def suitable_date?
-    @post.text.include?("Футбол в четверг #{proper_thursday}")
+    @post.text.include?("Футбол в четверг #{ProperThursday.new.call}")
   end
 
   def plus_exists?
@@ -23,7 +23,6 @@ class PostAnalizer
       .at_xpath("//div[@class='tvmbv18p cwj9ozl2']")
       .text
       .include?('Артём Юферов')
-    false
   end
 
   # Leave it for a moment
@@ -33,10 +32,6 @@ class PostAnalizer
       .join('and ')
   end
 
-  def proper_thursday
-    date = Date.today - 3
-    (date + (1 + ((3-date.wday) % 7))).strftime('%d.%m')
-  end
 
   def link_for_post(a)
     post_id = a.attribute('href').match(/.+post_id=(\d+)/)[1]

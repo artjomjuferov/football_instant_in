@@ -1,6 +1,6 @@
 require_relative 'post_analyzer'
 
-class FindNeededPost
+class VisitPostIfExists
   def initialize(browser)
     @browser = browser
   end
@@ -11,14 +11,10 @@ class FindNeededPost
     (1..3).each do |index|
       sleep 2
       post = load_post(index)
-      if PostAnalizer.new(@browser, post).suitable?
-        p 'Found post'
-        return post
-      end
+      return true if PostAnalizer.new(@browser, post).suitable?
       @browser.back # otherwise it does not find post, after last we don't need to go back because we are going to add +
     end
-    p 'Post was not found'
-    nil
+    false
   end
 
   private

@@ -3,8 +3,9 @@ require_relative 'cookie_service'
 class Auth
   CREDENTIALS_FILE = 'tmp/auth.json'
 
-  def initialize(browser)
+  def initialize(browser, logger)
     @browser = browser
+    @logger = logger
     @email, @pass = load_credentials
     @cookie_service = CookieService.new(@browser)
   end
@@ -15,9 +16,9 @@ class Auth
     if !@cookie_service.loaded_cookies? || logged_out?
       log_in
       @cookie_service.save_cookie
-      p 'Logged in and saved cookies'
+      @logger.info('Logged in and saved cookies')
     else
-      p 'Cookies alright'
+      @logger.info('Cookies alright')
     end
   end
 

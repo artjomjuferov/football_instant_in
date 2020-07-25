@@ -1,22 +1,36 @@
 require 'ferrum'
 require 'byebug'
+require 'logger'
+require 'fileutils'
 require_relative 'services/auth'
-require_relative 'services/find_needed_post'
+require_relative 'services/visit_post_if_exists'
 require_relative 'services/leave_plus_comment'
 require_relative 'services/post_analyzer'
+require_relative 'services/proper_thursday'
 
 class App
   def initialize
     @browser = Ferrum::Browser.new
+    FileUtils.mkdir_p log_dir
+    @logger = Logger.new("#{log_dir}/#{Time.now.to_i}.log")
   end
 
   def call
-    Auth.new(@browser).call
+    Auth.new(@browser, @logger).call
+    @logger.info('Authenticated')
 
-    @browser.screenshot(path: "tmp/auth.png")
+    if VisitPostIfExists.new(@browser).call
+      @logger.info("Post found #{@browser.current_url}")
+      LeavePlusComment.new(@browser).call
+      @logger.info('Comment left')
+    else
+      @logger.info('Post is not published yet')
+    end
+  end
 
-    post = FindNeededPost.new(@browser).call
+  private
 
-    LeavePlusComment.new(@browser).call if post
+  def log_dir
+    @log_dir ||= "logs/#{ProperThursday.new.call}"
   end
 end
