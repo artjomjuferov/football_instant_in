@@ -12,7 +12,6 @@ class CookieService
     file = File.open(COOKIES_FILE)
     json = JSON.load(file)
     if json
-      byebug
       set_cookies(json)
       @load_cookies = true
     else

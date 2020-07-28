@@ -1,6 +1,8 @@
 require_relative 'post_analyzer'
 
 class VisitPostIfExists
+  GROUP_URL = 'https://www.facebook.com/groups/1722501571383616'
+
   def initialize(browser)
     @browser = browser
   end
@@ -12,7 +14,8 @@ class VisitPostIfExists
       sleep 2
       post = load_post(index)
       return true if PostAnalizer.new(@browser, post).suitable?
-      @browser.back # otherwise it does not find post, after last we don't need to go back because we are going to add +
+
+      visit_group unless in_group? # otherwise it does not find post, after last we don't need to go back because we are going to add +
     end
     false
   end
@@ -24,10 +27,10 @@ class VisitPostIfExists
   end
 
   def in_group?
-    @browser.current_url == 'https://www.facebook.com/groups/1722501571383616'
+    @browser.current_url == GROUP_URL
   end
 
   def visit_group
-    @browser.goto("https://www.facebook.com/groups/1722501571383616")
+    @browser.goto(GROUP_URL)
   end
 end

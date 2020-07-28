@@ -11,7 +11,7 @@ class PostAnalizer
   private
 
   def suitable_date?
-    @post.text.include?("Футбол в четверг #{ProperThursday.new.call}")
+    @post.text.include?('Футбол во вторник') && @post.text.include?(ProperThursday.new.call)
   end
 
   def plus_exists?

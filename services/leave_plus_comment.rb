@@ -7,21 +7,22 @@ class LeavePlusComment
 
   def call
     @browser
-      .at_xpath("//div[@aria-label='Comment on post']")
+      .at_xpath("//form/descendant::node()/div[@role='textbox']")
       .focus
       .type('+', :enter)
+    add_record_to_db
   end
 
   private
 
   def add_record_to_db
-    File.open(RECORDS_FILE,'w') do |f|
-      f.write((plus_records << ProperThursday.new.call).to_json)
-    end
-  end
-
-  def plus_records
     file = File.open('tmp/added_pluses.json')
-    JSON.load(file)
+    plus_records = JSON.load(file)
+
+    plus_records << ProperThursday.new.call
+
+    File.open(RECORDS_FILE,'w') do |f|
+      f.write(plus_records.to_json)
+    end
   end
 end
